@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "app-study",
-    "slug": "app-study",
+    "name": "mingle-map",
+    "slug": "mingle-map",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -9,9 +9,18 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "NSLocationAlwaysAndWhenInUseUsageDescription": "{{ your location usage description }}",
+      "NSLocationWhenInUseUsageDescription": "{{ your location usage description }}",
+      "NSLocationTemporaryUsageDescriptionDictionary": {
+        "purposeKey": "{{ your purpose key }}",
+        "usageDescription": "{{ your location usage description }}"
+      }
     },
     "android": {
+      "ACCESS_FINE_LOCATION": true,
+      "ACCESS_COARSE_LOCATION": true,
+      "ACCESS_BACKGROUND_LOCATION": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -32,6 +41,24 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow app-study to use your location.",
+          "locationWhenInUsePermission": "Allow app-study to use your location.",
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraMavenRepos": [
+              "https://repository.map.naver.com/archive/maven"
+            ]
+          }
         }
       ]
     ],

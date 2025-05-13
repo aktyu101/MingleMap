@@ -14,6 +14,12 @@ import {
   View,
 } from "react-native";
 
+//latitude longitude 기기 좌표로 자동 입력 or 주소 선택
+//naver api 연결
+//위치정보 동의
+
+import * as Location from "expo-location";
+
 type Appointment = {
   id: string;
   title: string;
@@ -27,6 +33,23 @@ const STORAGE_KEY = "appointments";
 const AppointmentScreen = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    async function getCurrentLocation() {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        // setErrorMsg("Permission to access location was denied");
+        return;
+      }
+
+      let currentLocation = await Location.getCurrentPositionAsync({});
+      const latitude = currentLocation.coords.latitude;
+      const longitude = currentLocation.coords.longitude;
+      console.log("latitude:", latitude, "longitude:", longitude);
+    }
+
+    getCurrentLocation();
+  }, []);
 
   // Form states
   const [title, setTitle] = useState("");
@@ -80,14 +103,32 @@ const AppointmentScreen = () => {
     }
   };
 
-  const deleteAppointment = async (id: string) => {
-    const filtered = appointments.filter((a) => a.id !== id);
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-      setAppointments(filtered);
-    } catch (error) {
-      console.error("삭제 실패", error);
-    }
+  const deleteAppointment = (id: string) => {
+    Alert.alert(
+      "삭제 확인",
+      "정말로 이 약속을 삭제하시겠습니까?",
+      [
+        {
+          text: "취소",
+          style: "cancel",
+        },
+        {
+          text: "확인",
+          onPress: async () => {
+            const filtered = appointments.filter((a) => a.id !== id);
+            try {
+              await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+              setAppointments(filtered);
+            } catch (error) {
+              console.error("삭제 실패", error);
+              Alert.alert("삭제 실패", "삭제에 실패했습니다.");
+            }
+          },
+          style: "destructive",
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
@@ -101,6 +142,7 @@ const AppointmentScreen = () => {
           <View style={styles.preview}>
             <Text style={styles.previewTitle}>{item.title}</Text>
             <Text>장소: {item.location}</Text>
+            <Text>출발 장소: {item.location}</Text>
             <Text>시간: {item.time}</Text>
             <Text>공유 시작 전: {item.shareOffset}분</Text>
             <TouchableOpacity onPress={() => deleteAppointment(item.id)}>
@@ -121,6 +163,7 @@ const AppointmentScreen = () => {
           />
 
           <Text style={styles.label}>장소 *</Text>
+
           <TextInput
             style={styles.input}
             value={location}
